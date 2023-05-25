@@ -1,5 +1,3 @@
 # Text to speech using python and streamlit
-## webapp link hosted on heroku <br>
-https://text-to-speech-streamlit.herokuapp.com/
-
-![Demo](https://github.com/android-iceland/streamlit-text-to-speech/blob/main/demo.png)
+## webapp link hosted on streamlit <br>
+https://isaakkamau-streamlit-text-to-speech-app-kxrqyp.streamlit.app/
