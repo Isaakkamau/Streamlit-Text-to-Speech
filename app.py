@@ -74,7 +74,7 @@ english_accent = st.selectbox(
 )
 
 if english_accent == "Default":
-    tld = "com"
+    tld = "ca"
 elif english_accent == "India":
     tld = "co.in"
 
