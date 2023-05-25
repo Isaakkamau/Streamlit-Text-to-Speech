@@ -20,7 +20,7 @@ translator = Translator()
 
 # Add an image
 image = "Nairo24.png"
-st.image(image, caption="Nairo24", use_column_width=True)
+st.image(image, caption="", use_column_width=True)
 
 text = st.text_area("Enter text", value="", height=200)
 in_lang = st.selectbox(
