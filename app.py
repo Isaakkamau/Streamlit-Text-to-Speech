@@ -4,11 +4,6 @@ import time
 import glob
 import os
 
-
-
-
-
-
 #from gtts import gTTS
 from gtts import *
 from googletrans import Translator
@@ -17,6 +12,9 @@ try:
     os.mkdir("temp")
 except:
     pass
+
+st.markdown('<h3 style="text-align:center;text-decoration: lightblue underline;font-size:60px;color:red">Nairo24 <span style="color:#4f9bce;font-weight:bolder;font-size:60px;"> News 😎</span></h3>',unsafe_allow_html=True)
+
 st.title("Text to speech")
 translator = Translator()
 
