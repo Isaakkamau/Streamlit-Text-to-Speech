@@ -6,6 +6,7 @@ import os
 import subprocess
 import whisper
 from whisper.utils import write_vtt
+import openai
 
 #from gtts import gTTS
 from gtts import *
@@ -139,8 +140,23 @@ remove_files(7)
 ###MULTILINGUAL AI. FOR ADDING CAPTIONS TO VIDEOS###
 
 #Download the model
-model = whisper.load_model("medium")
+#model = whisper.load_model("medium")
 
+
+
+
+openai.api_key = "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"
+
+models = openai.Model.list()
+model = None
+
+for model in models:
+    if model["model_name"] == "whisper":
+        model = model
+        break
+
+if model is None:
+    raise ValueError("Model not found in the list of available models.")
     
 def video2mp3(video_file, output_ext="mp3"):
     filename, ext = os.path.splitext(video_file)
