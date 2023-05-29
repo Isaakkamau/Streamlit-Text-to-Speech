@@ -3,6 +3,9 @@ import os
 import time
 import glob
 import os
+import subprocess
+import whisper
+from whisper.utils import write_vtt
 
 #from gtts import gTTS
 from gtts import *
@@ -128,6 +131,81 @@ def remove_files(n):
             if os.stat(f).st_mtime < now - n_days:
                 os.remove(f)
                 print("Deleted ", f)
-
-
+                
 remove_files(7)
+
+
+
+###MULTILINGUAL AI. FOR ADDING CAPTIONS TO VIDEOS###
+
+#Download the model
+model = whisper.load_model("medium")
+
+    
+def video2mp3(video_file, output_ext="mp3"):
+    filename, ext = os.path.splitext(video_file)
+    subprocess.call(["ffmpeg", "-y", "-i", video_file, f"{filename}.{output_ext}"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.STDOUT)
+    return f"{filename}.{output_ext}"
+
+
+def translate(input_video):
+    audio_file = video2mp3(input_video)
+
+    options = dict(beam_size=5, best_of=5)
+    translate_options = dict(task="translate", **options)
+    result = model.transcribe(audio_file, **translate_options)
+
+    output_dir = '/content/'
+    audio_path = audio_file.split(".")[0]
+
+    with open(os.path.join(output_dir, audio_path + ".vtt"), "w") as vtt:
+        write_vtt(result["segments"], file=vtt)
+
+    subtitle = audio_path + ".vtt"
+    output_video = audio_path + "_subtitled.mp4"
+
+    os.system(f"ffmpeg -i {input_video} -vf subtitles={subtitle} {output_video}")
+
+    return output_video
+
+
+st.title("MultiLingual AI: Add Caption to Videos")
+
+uploaded_file = st.file_uploader("Upload your video", type=["mp4"])
+
+if uploaded_file is not None:
+    st.video(uploaded_file)
+    if st.button("Generate Subtitle Video"):
+        # Save uploaded file to a temporary location
+        with open("temp_video.mp4", "wb") as f:
+            f.write(uploaded_file.read())
+
+        output_video = translate("temp_video.mp4")
+
+        # Display the output video
+        st.video(output_video)
+
+        # Remove temporary files
+        os.remove("temp_video.mp4")
+
+st.markdown(
+    '''
+    <style>
+    .footer {
+        font-size: 12px;
+        color: #888888;
+        text-align: center;
+    }
+    </style>
+    <div class="footer">
+        <p>Powered by <a href="https://openai.com/" style="text-decoration: underline;" target="_blank">OpenAI</a> - Developer Tel: <a style="text-decoration: underline;" target="_blank">+254704205553</a>
+                    </p>
+    </div>
+    ''',
+    unsafe_allow_html=True
+)
+   
+
+
