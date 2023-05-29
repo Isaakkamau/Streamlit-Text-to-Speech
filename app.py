@@ -139,21 +139,23 @@ remove_files(7)
 
 ###MULTILINGUAL AI. FOR ADDING CAPTIONS TO VIDEOS###
 
+
+
+from pydub import AudioSegment
+
 #Download the model
 model = whisper.load_model("tiny")
 
 
-
-
-#openai.api_key = "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"
-
-    
 def video2mp3(video_file, output_ext="mp3"):
     filename, ext = os.path.splitext(video_file)
-    subprocess.call(["ffmpeg", "-y", "-i", video_file, f"{filename}.{output_ext}"],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.STDOUT)
-    return f"{filename}.{output_ext}"
+    audio_file = f"{filename}.{output_ext}"
+    
+    video_clip = VideoFileClip(video_file)
+    audio_clip = video_clip.audio
+    audio_clip.write_audiofile(audio_file)
+
+    return audio_file
 
 
 def translate(input_video):
@@ -163,7 +165,7 @@ def translate(input_video):
     translate_options = dict(task="translate", **options)
     result = model.transcribe(audio_file, **translate_options)
 
-    output_dir = '/content/'
+    output_dir = './'
     audio_path = audio_file.split(".")[0]
 
     with open(os.path.join(output_dir, audio_path + ".vtt"), "w") as vtt:
@@ -172,7 +174,8 @@ def translate(input_video):
     subtitle = audio_path + ".vtt"
     output_video = audio_path + "_subtitled.mp4"
 
-    os.system(f"ffmpeg -i {input_video} -vf subtitles={subtitle} {output_video}")
+    st.warning("Subtitle generation is not supported in this environment.")
+    st.warning("Please use a local environment with FFmpeg installed to generate the subtitled video.")
 
     return output_video
 
@@ -191,7 +194,8 @@ if uploaded_file is not None:
         output_video = translate("temp_video.mp4")
 
         # Display the output video
-        st.video(output_video)
+        st.warning("Subtitle generation is not supported in this environment.")
+        st.warning("Please use a local environment with FFmpeg installed to display the subtitled video.")
 
         # Remove temporary files
         os.remove("temp_video.mp4")
@@ -207,11 +211,8 @@ st.markdown(
     </style>
     <div class="footer">
         <p>Powered by <a href="https://openai.com/" style="text-decoration: underline;" target="_blank">OpenAI</a> - Developer Tel: <a style="text-decoration: underline;" target="_blank">+254704205553</a>
-                    </p>
+        </p>
     </div>
     ''',
     unsafe_allow_html=True
 )
-   
-
-
