@@ -6,7 +6,7 @@ import os
 import subprocess
 import whisper
 from whisper.utils import write_vtt
-import openai
+#import openai
 
 #from gtts import gTTS
 from gtts import *
