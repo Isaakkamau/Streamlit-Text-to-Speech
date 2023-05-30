@@ -141,21 +141,16 @@ remove_files(7)
 
 
 
-from pydub import AudioSegment
-
 #Download the model
 model = whisper.load_model("tiny")
 
 
 def video2mp3(video_file, output_ext="mp3"):
     filename, ext = os.path.splitext(video_file)
-    audio_file = f"{filename}.{output_ext}"
-    
-    video_clip = VideoFileClip(video_file)
-    audio_clip = video_clip.audio
-    audio_clip.write_audiofile(audio_file)
-
-    return audio_file
+    subprocess.call(["ffmpeg", "-y", "-i", video_file, f"{filename}.{output_ext}"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.STDOUT)
+    return f"{filename}.{output_ext}"
 
 
 def translate(input_video):
@@ -165,19 +160,22 @@ def translate(input_video):
     translate_options = dict(task="translate", **options)
     result = model.transcribe(audio_file, **translate_options)
 
-    output_dir = './'
-    audio_path = audio_file.split(".")[0]
+    output_dir = "content"  # Specify the desired output directory
+    os.makedirs(output_dir, exist_ok=True)  # Create the directory if it doesn't exist
+    audio_path = os.path.splitext(os.path.basename(audio_file))[0]
+    subtitle_path = os.path.join(output_dir, audio_path + ".vtt")
 
-    with open(os.path.join(output_dir, audio_path + ".vtt"), "w") as vtt:
+    with open(subtitle_path, "w") as vtt:
         write_vtt(result["segments"], file=vtt)
 
-    subtitle = audio_path + ".vtt"
-    output_video = audio_path + "_subtitled.mp4"
+    output_video = os.path.join(output_dir, audio_path + "_subtitled.mp4")
 
-    st.warning("Subtitle generation is not supported in this environment.")
-    st.warning("Please use a local environment with FFmpeg installed to generate the subtitled video.")
+    subprocess.call(["ffmpeg", "-i", input_video, "-vf", f"subtitles={subtitle_path}:scodec=srt,force_style='BoxBorderColor=white@0.5,FontSize=30'", output_video],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.STDOUT)
 
     return output_video
+
 
 
 st.title("MultiLingual AI: Add Caption to Videos")
@@ -194,11 +192,11 @@ if uploaded_file is not None:
         output_video = translate("temp_video.mp4")
 
         # Display the output video
-        st.warning("Subtitle generation is not supported in this environment.")
-        st.warning("Please use a local environment with FFmpeg installed to display the subtitled video.")
+        st.video(output_video)
 
         # Remove temporary files
         os.remove("temp_video.mp4")
+
 
 st.markdown(
     '''
