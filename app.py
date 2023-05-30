@@ -145,12 +145,17 @@ remove_files(7)
 model = whisper.load_model("tiny")
 
 
+from moviepy.editor import VideoFileClip
+
 def video2mp3(video_file, output_ext="mp3"):
     filename, ext = os.path.splitext(video_file)
-    subprocess.call(["ffmpeg", "-y", "-i", video_file, f"{filename}.{output_ext}"],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.STDOUT)
-    return f"{filename}.{output_ext}"
+    audio_file = f"{filename}.{output_ext}"
+
+    video_clip = VideoFileClip(video_file)
+    audio_clip = video_clip.audio
+    audio_clip.write_audiofile(audio_file)
+
+    return audio_file
 
 
 def translate(input_video):
